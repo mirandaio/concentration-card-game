@@ -1,5 +1,5 @@
 const Card = ({ card }) => {
-  return <div className="card">{card.faceUp ? card.image : "X"}</div>;
+  return <div className="card" >{card.isFaceUp ? card.image : "X"}</div>;
 };
 
-export default Card;
+ export default Card;

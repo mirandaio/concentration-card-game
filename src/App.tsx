@@ -18,20 +18,19 @@ const shuffleCards = (cards: object[]) => {
   return cards;
 };
 
-const getCards = (uniqueEmojis: object[]) => {
-  const emojiCards = [...uniqueEmojis, ...uniqueEmojis];
-  shuffleCards(emojiCards);
-  return emojiCards;
+const getCards = () => {
+  const uniqueEmojis = randomEmoji.generateEmojis(UNIQUE_EMOJI_COUNT)
+  const cards = uniqueEmojis.flatMap(emoji => [{...emoji, isFaceUp: true}, {...emoji, isFaceUp: true}])
+  shuffleCards(cards);
+  return cards;
 }
 
 function App() {
-  const [uniqueEmojis, setUniqueEmojis] = useState(() => randomEmoji.generateEmojis(UNIQUE_EMOJI_COUNT));
+  const [cards, setCards] = useState(() => getCards());
 
   const startNewGame = () => {
-    setUniqueEmojis(randomEmoji.generateEmojis(UNIQUE_EMOJI_COUNT));
+    setCards(getCards());
   };
-
-  const cards = getCards(uniqueEmojis);
 
   return (
     <>
@@ -39,7 +38,7 @@ function App() {
       <main>
         <div className="card-container">
           {cards.map((card, i) => {
-            return <Card key={i} card={card}/>
+            return <Card key={i} card={card} />
           })}
         </div>
         <button className="new-game" onClick={startNewGame}>Start new game!</button>
