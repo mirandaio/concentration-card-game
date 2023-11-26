@@ -1,33 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import randomEmoji from 'generate-random-emoji';
+import Card from './Card';
+
+const UNIQUE_EMOJI_COUNT = 4
+
+const shuffleCards = (cards: object[]) => {
+  let cardHolder;
+
+  for (let i = 0; i < cards.length; i++) {
+    const currentLength = cards.length - i; // i = 1, currentLength = 7
+    const randomIndex = i + Math.floor(Math.random() * currentLength);
+    cardHolder = cards[i];
+    cards[i] = cards[randomIndex];
+    cards[randomIndex] = cardHolder;
+  }
+
+  return cards;
+};
+
+const getCards = (uniqueEmojis: object[]) => {
+  const emojiCards = [...uniqueEmojis, ...uniqueEmojis];
+  shuffleCards(emojiCards);
+  return emojiCards;
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [uniqueEmojis, setUniqueEmojis] = useState(() => randomEmoji.generateEmojis(UNIQUE_EMOJI_COUNT));
+
+  const startNewGame = () => {
+    setUniqueEmojis(randomEmoji.generateEmojis(UNIQUE_EMOJI_COUNT));
+  };
+
+  const cards = getCards(uniqueEmojis);
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>Concentration Card Game</h1>
+      <main>
+        <div className="card-container">
+          {cards.map((card, i) => {
+            return <Card key={i} card={card}/>
+          })}
+        </div>
+        <button className="new-game" onClick={startNewGame}>Start new game!</button>
+      </main>
     </>
   )
 }
