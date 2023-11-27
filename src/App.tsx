@@ -37,6 +37,8 @@ function App() {
   };
 
   const handleCardClick = (clickedCard) => {
+    if (clickedCard.isFaceUp) return;
+
     if (!currentCard) {
       setCurrentCard(clickedCard);
       setCards((cards) => {
