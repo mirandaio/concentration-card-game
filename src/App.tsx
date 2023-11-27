@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import randomEmoji from 'generate-random-emoji';
-import Card from './Card';
+import { useState } from "react";
+import randomEmoji from "generate-random-emoji";
+import Card from "./Card";
 
-const UNIQUE_EMOJI_COUNT = 4
+const UNIQUE_EMOJI_COUNT = 4;
 
 const shuffleCards = (cards: object[]) => {
   let cardHolder;
@@ -19,11 +19,14 @@ const shuffleCards = (cards: object[]) => {
 };
 
 const getCards = () => {
-  const uniqueEmojis = randomEmoji.generateEmojis(UNIQUE_EMOJI_COUNT)
-  const cards = uniqueEmojis.flatMap(emoji => [{...emoji, isFaceUp: false}, {...emoji, isFaceUp: false}])
+  const uniqueEmojis = randomEmoji.generateEmojis(UNIQUE_EMOJI_COUNT);
+  const cards = uniqueEmojis.flatMap((emoji) => [
+    { ...emoji, id: crypto.randomUUID(), isFaceUp: false },
+    { ...emoji, id: crypto.randomUUID(), isFaceUp: false },
+  ]);
   shuffleCards(cards);
   return cards;
-}
+};
 
 function App() {
   const [cards, setCards] = useState(() => getCards());
@@ -33,13 +36,42 @@ function App() {
     setCards(getCards());
   };
 
-  const handleCardClick = (index) => {
-    setCards(cards => {
-      const newCards = cards.map((card, i) => {
-        return i === index ? {...card, isFaceUp: true} : card
+  const handleCardClick = (clickedCard) => {
+    if (!currentCard) {
+      setCurrentCard(clickedCard);
+      setCards((cards) => {
+        const newCards = cards.map((card) => {
+          return card.id === clickedCard.id
+            ? { ...card, isFaceUp: true }
+            : card;
+        });
+        return newCards;
       });
-      return newCards;
-    });
+    } else {
+      setCards((cards) => {
+        const newCards = cards.map((card) => {
+          return card.id === clickedCard.id
+            ? { ...card, isFaceUp: true }
+            : card;
+        });
+        return newCards;
+      });
+      if (currentCard.image !== clickedCard.image) {
+        setTimeout(() => {
+          setCards((cards) => {
+            const newCards = cards.map((card) => {
+              return card.id === currentCard.id || card.id === clickedCard.id
+                ? { ...card, isFaceUp: false }
+                : card;
+            });
+            return newCards;
+          });
+          setCurrentCard(null);
+        }, 2000);
+      } else {
+        setCurrentCard(null);
+      }
+    }
   };
 
   return (
@@ -48,13 +80,15 @@ function App() {
       <main>
         <div className="card-container">
           {cards.map((card, i) => {
-            return <Card key={i} index={i} card={card} onClick={handleCardClick}/>
+            return <Card key={i} card={card} onClick={handleCardClick} />;
           })}
         </div>
-        <button className="new-game" onClick={startNewGame}>Start new game!</button>
+        <button className="new-game" onClick={startNewGame}>
+          Start new game!
+        </button>
       </main>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
