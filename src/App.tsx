@@ -21,8 +21,8 @@ const shuffleCards = (cards: object[]) => {
 const getCards = () => {
   const uniqueEmojis = randomEmoji.generateEmojis(UNIQUE_EMOJI_COUNT);
   const cards = uniqueEmojis.flatMap((emoji) => [
-    { ...emoji, id: crypto.randomUUID(), isFaceUp: false },
-    { ...emoji, id: crypto.randomUUID(), isFaceUp: false },
+    { ...emoji, id: crypto.randomUUID(), isEmojiUp: false },
+    { ...emoji, id: crypto.randomUUID(), isEmojiUp: false },
   ]);
   shuffleCards(cards);
   return cards;
@@ -31,39 +31,31 @@ const getCards = () => {
 function App() {
   const [cards, setCards] = useState(() => getCards());
   const [currentCard, setCurrentCard] = useState();
+  const [isGameOver, setIsGameOver] = useState(false);
 
   const startNewGame = () => {
     setCards(getCards());
   };
 
   const handleCardClick = (clickedCard) => {
-    if (clickedCard.isFaceUp) return;
+    if (clickedCard.isEmojiUp) return;
+
+    setCards((cards) => {
+      const newCards = cards.map((card) => {
+        return card.id === clickedCard.id ? { ...card, isEmojiUp: true } : card;
+      });
+      return newCards;
+    });
 
     if (!currentCard) {
       setCurrentCard(clickedCard);
-      setCards((cards) => {
-        const newCards = cards.map((card) => {
-          return card.id === clickedCard.id
-            ? { ...card, isFaceUp: true }
-            : card;
-        });
-        return newCards;
-      });
     } else {
-      setCards((cards) => {
-        const newCards = cards.map((card) => {
-          return card.id === clickedCard.id
-            ? { ...card, isFaceUp: true }
-            : card;
-        });
-        return newCards;
-      });
       if (currentCard.image !== clickedCard.image) {
         setTimeout(() => {
           setCards((cards) => {
             const newCards = cards.map((card) => {
               return card.id === currentCard.id || card.id === clickedCard.id
-                ? { ...card, isFaceUp: false }
+                ? { ...card, isEmojiUp: false }
                 : card;
             });
             return newCards;
@@ -72,6 +64,9 @@ function App() {
         }, 2000);
       } else {
         setCurrentCard(null);
+        if (cards.every(({ isEmojiUp }) => isEmojiUp)) {
+          setIsGameOver(true);
+        }
       }
     }
   };
@@ -85,9 +80,11 @@ function App() {
             return <Card key={i} card={card} onClick={handleCardClick} />;
           })}
         </div>
-        <button className="new-game" onClick={startNewGame}>
-          Start new game!
-        </button>
+        {isGameOver ? (
+          <button className="new-game" onClick={startNewGame}>
+            Start new game!
+          </button>
+        ) : null}
       </main>
     </>
   );

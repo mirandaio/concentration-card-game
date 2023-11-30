@@ -1,7 +1,7 @@
 const Card = ({ card, onClick }) => {
   return (
     <div className="card" onClick={() => onClick(card)}>
-      {card.isFaceUp ? card.image : "X"}
+      {card.isEmojiUp ? card.image : "X"}
     </div>
   );
 };
