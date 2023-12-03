@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import randomEmoji from "generate-random-emoji";
 import Card from "./Card";
 
@@ -8,7 +8,7 @@ const shuffleCards = (cards: object[]) => {
   let cardHolder;
 
   for (let i = 0; i < cards.length; i++) {
-    const currentLength = cards.length - i; // i = 1, currentLength = 7
+    const currentLength = cards.length - i;
     const randomIndex = i + Math.floor(Math.random() * currentLength);
     cardHolder = cards[i];
     cards[i] = cards[randomIndex];
@@ -30,8 +30,32 @@ const getCards = () => {
 
 function App() {
   const [cards, setCards] = useState(() => getCards());
-  const [currentCard, setCurrentCard] = useState();
+  const [firstCard, setFirstCard] = useState();
+  const [secondCard, setSecondCard] = useState();
   const [isGameOver, setIsGameOver] = useState(false);
+
+  useEffect(() => {
+    if (firstCard && secondCard) {
+      if (firstCard.image !== secondCard.image) {
+        setTimeout(() => {
+          setCards((cards) => {
+            const newCards = cards.map((card) => {
+              return card.id === firstCard.id || card.id === secondCard.id
+                ? { ...card, isEmojiUp: false }
+                : card;
+            });
+
+            return newCards;
+          });
+          setFirstCard(null);
+          setSecondCard(null);
+        }, 2000);
+      } else {
+        setFirstCard(null);
+        setSecondCard(null);
+      }
+    }
+  }, [firstCard, secondCard]);
 
   const startNewGame = () => {
     setCards(getCards());
@@ -39,6 +63,7 @@ function App() {
 
   const handleCardClick = (clickedCard) => {
     if (clickedCard.isEmojiUp) return;
+    if (firstCard && secondCard) return;
 
     setCards((cards) => {
       const newCards = cards.map((card) => {
@@ -47,27 +72,10 @@ function App() {
       return newCards;
     });
 
-    if (!currentCard) {
-      setCurrentCard(clickedCard);
+    if (!firstCard) {
+      setFirstCard(clickedCard);
     } else {
-      if (currentCard.image !== clickedCard.image) {
-        setTimeout(() => {
-          setCards((cards) => {
-            const newCards = cards.map((card) => {
-              return card.id === currentCard.id || card.id === clickedCard.id
-                ? { ...card, isEmojiUp: false }
-                : card;
-            });
-            return newCards;
-          });
-          setCurrentCard(null);
-        }, 2000);
-      } else {
-        setCurrentCard(null);
-        if (cards.every(({ isEmojiUp }) => isEmojiUp)) {
-          setIsGameOver(true);
-        }
-      }
+      setSecondCard(clickedCard);
     }
   };
 
