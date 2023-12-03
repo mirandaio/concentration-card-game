@@ -53,12 +53,14 @@ function App() {
       } else {
         setFirstCard(null);
         setSecondCard(null);
+        setIsGameOver(cards.every(({ isEmojiUp }) => isEmojiUp));
       }
     }
-  }, [firstCard, secondCard]);
+  }, [firstCard, secondCard, cards]);
 
   const startNewGame = () => {
     setCards(getCards());
+    setIsGameOver(false);
   };
 
   const handleCardClick = (clickedCard) => {
