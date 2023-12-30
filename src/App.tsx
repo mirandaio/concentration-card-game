@@ -1,8 +1,16 @@
 import { useState, useEffect } from "react";
 import randomEmoji from "generate-random-emoji";
 import Card from "./Card";
+import { CardType } from './GameTypes';
 
 const UNIQUE_EMOJI_COUNT = 4;
+
+type Emoji = {
+  category: string,
+  code: string,
+  image: string,
+  name: string
+};
 
 const shuffleCards = (cards: object[]) => {
   let cardHolder;
@@ -18,9 +26,9 @@ const shuffleCards = (cards: object[]) => {
   return cards;
 };
 
-const getCards = () => {
+const getCards = (): CardType[] => {
   const uniqueEmojis = randomEmoji.generateEmojis(UNIQUE_EMOJI_COUNT);
-  const cards = uniqueEmojis.flatMap((emoji) => [
+  const cards = uniqueEmojis.flatMap((emoji: Emoji) => [
     { ...emoji, id: crypto.randomUUID(), isEmojiUp: false },
     { ...emoji, id: crypto.randomUUID(), isEmojiUp: false },
   ]);
@@ -30,8 +38,8 @@ const getCards = () => {
 
 function App() {
   const [cards, setCards] = useState(() => getCards());
-  const [firstCard, setFirstCard] = useState();
-  const [secondCard, setSecondCard] = useState();
+  const [firstCard, setFirstCard] = useState<CardType | null>();
+  const [secondCard, setSecondCard] = useState<CardType | null>();
   const [isGameOver, setIsGameOver] = useState(false);
 
   useEffect(() => {
@@ -63,7 +71,7 @@ function App() {
     setIsGameOver(false);
   };
 
-  const handleCardClick = (clickedCard) => {
+  const handleCardClick = (clickedCard: CardType) => {
     if (clickedCard.isEmojiUp) return;
     if (firstCard && secondCard) return;
 
